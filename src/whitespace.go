@@ -6,13 +6,14 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 )
 
 const (
-	NULL_CHAR  = -1
-	STACK_SIZE = 30000
+	NULL_CHAR  rune = -1
+	STACK_SIZE      = 30000
 )
 
 const (
@@ -87,10 +88,10 @@ func parse(file *os.File) {
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
-			if err == os.EOF {
+			if err == io.EOF {
 				break
 			} else {
-				error(err.String())
+				error(err.Error())
 			}
 		}
 
@@ -113,7 +114,7 @@ func parse(file *os.File) {
 }
 
 // Instruction Modification Parameter
-func parse_imp(c int) {
+func parse_imp(c rune) {
 	switch c {
 	case ' ':
 		switch last_char {
@@ -156,7 +157,7 @@ func parse_imp(c int) {
 }
 
 // Instructions
-func parse_instruction(c int) {
+func parse_instruction(c rune) {
 	switch current_imp {
 	case IMP_STACK:
 		parse_command_stack(c)
@@ -175,7 +176,7 @@ func parse_instruction(c int) {
 }
 
 // Stack Manipulation (IMP: [Space])
-func parse_command_stack(c int) {
+func parse_command_stack(c rune) {
 	switch c {
 	case ' ':
 		switch last_char {
@@ -226,7 +227,7 @@ func parse_command_stack(c int) {
 }
 
 // Arithmetic (IMP: [Tab][Space])
-func parse_command_arithmetic(c int) {
+func parse_command_arithmetic(c rune) {
 	switch c {
 	case ' ':
 		switch last_char {
@@ -268,7 +269,7 @@ func parse_command_arithmetic(c int) {
 }
 
 // Heap Access (IMP: [Tab][Tab])
-func parse_command_heap(c int) {
+func parse_command_heap(c rune) {
 	switch c {
 	case ' ':
 		// [Space] : Store
@@ -286,7 +287,7 @@ func parse_command_heap(c int) {
 }
 
 // Flow Control (IMP: [LF])
-func parse_command_flow(c int) {
+func parse_command_flow(c rune) {
 	switch c {
 	case ' ':
 		switch last_char {
@@ -336,7 +337,7 @@ func parse_command_flow(c int) {
 }
 
 // I/O (IMP: [Tab][LF])
-func parse_command_io(c int) {
+func parse_command_io(c rune) {
 	switch c {
 	case ' ':
 		switch last_char {
@@ -373,7 +374,7 @@ var sign = 0
 var abs = 0
 
 // Number
-func parse_number(c int) {
+func parse_number(c rune) {
 	if sign == 0 {
 		switch c {
 		case ' ':
@@ -405,7 +406,7 @@ func parse_number(c int) {
 var label = 1
 
 // label
-func parse_label(c int) {
+func parse_label(c rune) {
 	switch c {
 	case ' ':
 		label <<= 1
@@ -653,7 +654,7 @@ func dump_program() {
 
 func dump_marks() {
 	for k, v := range marks {
-		fmt.Printf("%d -> %d\n", k, v)
+		fmt.Printf("%s -> %d\n", k, v)
 	}
 }
 
@@ -683,7 +684,7 @@ func main() {
 	}
 
 	filename := flag.Arg(0)
-	file, err := os.Open(filename, os.O_RDONLY, 0666)
+	file, err := os.Open(filename)
 	if err == nil {
 		parse(file)
 		eval()
